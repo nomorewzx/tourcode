@@ -4,13 +4,14 @@ import matplotlib.pyplot as plt
 import kMeans
 import base
 def main():
-	dataSet = kMeans.loadfromcsv('./data/cluster/51.csv')
+	dataSet = kMeans.loadfromcsv('./data/cluster/19.csv')
 	dataMat = np.mat(dataSet)
+	# normalize dataMat
 	norMat = kMeans.normalize(dataMat)
-	centroids, clusterAssment = kMeans.kMeans(norMat,4)
-	# plt.plot(norMat[:,0].A,norMat[:,1].A,'g^')
-	# plt.plot(centroids[:,0].A, centroids[:,1],'ro')
-	# plt.title(u'平遥游客聚类结果')
+	# centroids is the center of clusters
+	# clusterAssment[cluster_index,deviation],in which deviation represents the dist
+	# from current point to centroids. 
+	centroids, clusterAssment = kMeans.biKmeans(norMat,4)
 	cluster_label = clusterAssment[:,0]
 	clusters = [[],[],[],[]]
 	for i in range(0,len(cluster_label)):
@@ -19,6 +20,16 @@ def main():
 	for i in range(0,len(clusters)):
 		clusters[i] = np.asarray(clusters[i])
 	clusters = np.asarray(clusters)
+
+	longest_cluster = 0
+	for i in range(0,len(clusters)):
+		if longest_cluster < len(clusters[i]):
+			longest_cluster = i
+		print "%d cluster has %d elements " % (i, len(clusters[i])),
+		print "the centroids is",
+		print centroids[i]
+	print "%d cluster mean type is" % longest_cluster,
+	print centroids[longest_cluster]
 	di = base.dunn(clusters)
 	print di
 
