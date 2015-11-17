@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import kMeans
 import base
 def main():
-	dataSet = kMeans.loadfromcsv('./data/cluster/19.csv')
+	dataSet = kMeans.loadfromcsv('./data/cluster/8.csv')
 	dataMat = np.mat(dataSet)
 	# normalize dataMat
 	norMat = kMeans.normalize(dataMat)
@@ -21,17 +21,21 @@ def main():
 		clusters[i] = np.asarray(clusters[i])
 	clusters = np.asarray(clusters)
 
-	longest_cluster = 0
+	max_cluster = 0
+	min_cluster = 0
 	for i in range(0,len(clusters)):
-		if longest_cluster < len(clusters[i]):
-			longest_cluster = i
+		if len(clusters[max_cluster]) < len(clusters[i]):
+			max_cluster = i
+		if len(clusters[min_cluster]) > len(clusters[i]):
+			min_cluster = i
 		print "%d cluster has %d elements " % (i, len(clusters[i])),
 		print "the centroids is",
 		print centroids[i]
-	print "%d cluster mean type is" % longest_cluster,
-	print centroids[longest_cluster]
+	number_weight = float(len(clusters[max_cluster]))/(len(clusters[min_cluster]))
+	print centroids[max_cluster]
 	di = base.dunn(clusters)
-	print di
+	print "original dunn is %f" % di
+	print "weighted dunn is %f" % (number_weight*di)
 
 def plotCluster():
 	dataSetPingYao = kMeans.loadDataSet('7.csv')
