@@ -22,9 +22,9 @@ def convertGeoCode(filename,destname):
 		for row in rawContent:
 			if row[1] != 'null' and row[1] in geocodeBuffer:
 				distance = latlonDist._dist(geocodeBuffer[row[1]],geocodeBuffer[destname])
-				writeRows.append((0,distance,row[2],0))
+				writeRows.append((0,row[2],distance,0))
 	print '%d tours are found' % len(writeRows)
-	with open('data/'+filename,'ab') as destCSV:
+	with open('data/'+filename,'wb') as destCSV:
 		writer = csv.writer(destCSV)
 		for row in writeRows:
 			writer.writerow(row)
@@ -32,4 +32,10 @@ def convertGeoCode(filename,destname):
 
 
 if __name__ == '__main__':
+	# convertGeoCode('10195.csv','西安')
 	convertGeoCode('10444.csv','青岛')
+	convertGeoCode('10030.csv','三亚')
+	convertGeoCode('10136.csv','九寨沟')
+	convertGeoCode('10284.csv','泰山')
+
+

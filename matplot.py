@@ -28,9 +28,34 @@ def generateRandomDots():
 def printBasicInfo(centroids,clusterAssment,norMat):
 	minCount = 10000
 	maxCount = 0
+	cluster_label = clusterAssment[:,0]
+	clusters = [[],[],[],[]]
+	for i in range(0,len(cluster_label)):
+		clusters[int(cluster_label[i])].append(np.asarray(norMat)[i])
+	clusters = np.asarray(clusters)
+	max_cluster = 0
+	min_cluster = 0
+	for i in range(0,len(clusters)):
+		if minCount > len(clusters[i]):
+			minCount = len(clusters[i])
+		if maxCount < len(clusters[i]):
+			maxCount = len(clusters[i])
+		if len(clusters[max_cluster]) < len(clusters[i]):
+			max_cluster = i
+		if len(clusters[min_cluster]) > len(clusters[i]):
+			min_cluster = i
+		print "%d cluster has %d elements " % (i, len(clusters[i])),
+		print "the centroids is",
+		print centroids[i]
+	number_weight = float(len(clusters[max_cluster]))/(len(clusters[min_cluster]))
+	print centroids[max_cluster]
+	di = base.dunn(clusters)
+	NDunnIndex = di*(maxCount/minCount)
+	print "original dunn is %f" % di
+	print "weighted dunn is %f" % (number_weight*di)
 
 def main():
-	dataSet = kMeans.loadfromcsv('./data/cluster/8.csv')
+	dataSet = kMeans.loadfromcsv('./data/8.csv')
 	dataMat = np.mat(dataSet)
 	# normalize dataMat
 	norMat = kMeans.normalize(dataMat)
@@ -47,6 +72,8 @@ def main():
 		clusters[i] = np.asarray(clusters[i])
 	clusters = np.asarray(clusters)
 
+	minCount = 10000
+	maxCount = 0
 	max_cluster = 0
 	min_cluster = 0
 	for i in range(0,len(clusters)):
@@ -54,8 +81,6 @@ def main():
 			minCount = len(clusters[i])
 		if maxCount < len(clusters[i]):
 			maxCount = len(clusters[i])
-		if longest_cluster < len(clusters[i]):
-			longest_cluster = i
 		if len(clusters[max_cluster]) < len(clusters[i]):
 			max_cluster = i
 		if len(clusters[min_cluster]) > len(clusters[i]):
@@ -129,12 +154,12 @@ def plot2Cluster():
 	plt.show()
 
 def plotCluster():
-	dataSetShangHai = kMeans.loadfromcsv('./data/cluster/8.csv')
-	dataSetXiAn = kMeans.loadfromcsv('./data/cluster/51.csv')
-	dataSetQingDao = kMeans.loadfromcsv('./data/cluster/19.csv')
-	dataSetSanYa = kMeans.loadfromcsv('./data/cluster/14.csv')
-	dataSetJiuZhaigou = kMeans.loadfromcsv('./data/cluster/1.csv')
-	dataSetTaiShan = kMeans.loadfromcsv('./data/cluster/36.csv')
+	dataSetShangHai = kMeans.loadfromcsv('./data/8.csv')
+	dataSetXiAn = kMeans.loadfromcsv('./data/10195.csv')
+	dataSetQingDao = kMeans.loadfromcsv('./data/10444.csv')
+	dataSetSanYa = kMeans.loadfromcsv('./data/10030.csv')
+	dataSetJiuZhaigou = kMeans.loadfromcsv('./data/10136.csv')
+	dataSetTaiShan = kMeans.loadfromcsv('./data/10284.csv')
 
 	dataMatXiAn = np.mat(dataSetXiAn)
 	dataMatQingDao = np.mat(dataSetQingDao)
