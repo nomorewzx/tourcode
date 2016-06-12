@@ -64,22 +64,10 @@ def dbscan(m, min_points, eps):
         		cluster_id +=1
     return classifications
 
-def test_dbscan():
-    m = np.matrix('39.929986 116.395645;39.143930 117.210813;31.249162 121.487899')
-    eps = 50
-    min_points = 1
-    #assert dbscan(m, eps, min_points) == [1, 1, 1, 2, 2, 2, None]
-    classifications = dbscan(m, min_points, eps)
-    fopen = open('result_1.txt','a')
-    fopen.write(classifications)
-    fopen.close()
-    return 'done!'
-
-
 def _runDbscan(m,eps,min_points):
     #assert dbscan(m, eps, min_points) == [1, 1, 1, 2, 2, 2, None]
     classifications = dbscan(m, min_points, eps)
-    fopen = open("result.txt",'w')
+    fopen = open("./data/result.txt",'w')
     for i in classifications:
         fopen.write(str(i))
         fopen.write('\n')
@@ -87,13 +75,9 @@ def _runDbscan(m,eps,min_points):
     return classifications
 
 def _genMatrixFromtxt():
-    a = np.genfromtxt('/home/zhenxuan/python_analytic_data/photos1000.csv',delimiter=',')
+    a = np.genfromtxt('./data/notegeodata.csv',delimiter=',')
     m = np.matrix(a[:,-2:])
     return m
-def genMatrix():
-	a = np.genfromtxt('photos1000.csv')
-	m = np.matrix(a[:,0:1])
-	return m
 
 def _dumpToJson(matrix, classifications):
     jsonList = []
@@ -101,11 +85,11 @@ def _dumpToJson(matrix, classifications):
         if classifications[i] != None:
            dic =  dict(zip(['label','lng','lat'], [str(classifications[i]), matrix[i,:].item(0,0), matrix[i,:].item(0,1)]))
            jsonList.append(dic)
-    fopen = open('jsonResult.json','w')
+    fopen = open('./data/jsonResult.json','w')
     json.dump(jsonList,fopen)
     fopen.close()
 def _defineClusterName(classifications, csvFile):
-    reader = csv.reader(open("/home/zhenxuan/python_analytic_data/notegeodata.csv"))
+    reader = csv.reader(open("./data/notegeodata.csv"))
     dictCount = {}
     i = 0
     for item in reader:
@@ -128,7 +112,7 @@ def _defineClusterName(classifications, csvFile):
     for i in range(0,len(classifications)):
         label = classifications[i]
         classificationsName[i] = dictCount_new[label]
-    fopen = open('clusterName.txt','w')
+    fopen = open('./data/clusterName.txt','w')
     for k,v in dictCount_new.iteritems():
         fopen.write(str(k)+','+v+'\n')
     fopen.close()

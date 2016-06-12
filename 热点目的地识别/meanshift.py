@@ -108,7 +108,7 @@ def meanshift(X,bandwidth):
 	return cluster_centers,labels
 
 def defineClusterName(classifications):
-    reader = csv.reader(open("notegeodata.csv"))
+    reader = csv.reader(open("./data/notegeodata.csv"))
     dictCount = {}
     i = 0
     for item in reader:
@@ -132,7 +132,7 @@ def defineClusterName(classifications):
     for i in range(0,len(classifications)):
         label = classifications[i]
         classificationsName[i] = dictCount_new[label]
-    fopen = open('clusterName-meanshift.txt','w')
+    fopen = open('./data/clusterName-meanshift.txt','w')
     for k,v in dictCount_new.iteritems():
         fopen.write(str(k)+','+str(v)+'\n')
     fopen.close()
@@ -153,8 +153,8 @@ def runWithParam(n):
 
 def clusterName(bandwidth,labels):
 	cluster_number = len(list(set(labels)))
-	file_name = "%d-number-%d-name.txt" % (bandwidth,cluster_number)
-	reader = csv.reader(open('notegeodata.csv'))
+	file_name = "./data/%d-number-%d-name.txt" % (bandwidth,cluster_number)
+	reader = csv.reader(open('./data/notegeodata.csv'))
 	dictCount = {}
 	i = 0
 	for item in reader:
@@ -195,8 +195,8 @@ def runMulti():
 # 比较DBSCAN聚类结果中与MeanShift聚类结果中有多少是相同的个数
 # 注意MeanShift文件需要在代码中更改
 def compareTwo(bandwidth,cluster_number):
-	mean_shift_path = "%d-number-%d-name.txt" % (bandwidth,cluster_number)
-	f_dbscan = open('clusterName-dbscan.txt','r')
+	mean_shift_path = "./dat/%d-number-%d-name.txt" % (bandwidth,cluster_number)
+	f_dbscan = open('./data/clusterName-dbscan.txt','r')
 	f_meanshift = open(mean_shift_path,'r')
 	db_names = genClusterName(f_dbscan)
 	mf_names = genClusterName(f_meanshift)
@@ -206,7 +206,7 @@ def compareTwo(bandwidth,cluster_number):
 			same_names.append(name)
 
 	print 'DBSCAN and meanshift with %d bandwidth has %d same names' % (bandwidth,len(same_names))
-	f = open('same_names-150.txt','w')
+	f = open('./data/same_names-150.txt','w')
 	for name in same_names:
 		f.write(name+'\n')
 	f.close()
@@ -225,7 +225,7 @@ if __name__ == '__main__':
 	print "共有簇数目为：%d" % len(cluster_centers)
 
 
-	f = open('labels.txt','a')
+	f = open('./data/labels.txt','a')
 	for label in labels:
 		f.writeln(label)
 	f.close()

@@ -7,7 +7,7 @@ def countLabel(classifications):
 			countDict[label] = 1
 		else:
 			countDict[label]+=1
-	f = open('countLabels.txt','w')
+	f = open('./data/countLabels.txt','w')
 	for k,v in countDict.iteritems():
 		f.write(str(k)+','+str(v)+'\n')
 	f.close()

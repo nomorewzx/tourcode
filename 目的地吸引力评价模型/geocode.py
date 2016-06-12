@@ -33,9 +33,9 @@ def convertGeoCode(filename,destname):
 
 if __name__ == '__main__':
 	# convertGeoCode('10195.csv','西安')
-	convertGeoCode('10444.csv','青岛')
-	convertGeoCode('10030.csv','三亚')
-	convertGeoCode('10136.csv','九寨沟')
-	convertGeoCode('10284.csv','泰山')
+	convertGeoCode('./data/10444.csv','青岛')
+	convertGeoCode('./data/10030.csv','三亚')
+	convertGeoCode('./data/10136.csv','九寨沟')
+	convertGeoCode('./data/10284.csv','泰山')
 
 
