@@ -54,6 +54,7 @@ def printBasicInfo(centroids,clusterAssment,norMat):
 	print "original dunn is %f" % di
 	print "weighted dunn is %f" % (number_weight*di)
 
+# 运行旅游目的地评价模型
 def main():
 	dataSet = kMeans.loadfromcsv('./data/8.csv')
 	dataMat = np.mat(dataSet)
@@ -62,6 +63,7 @@ def main():
 	# centroids is the center of clusters
 	# clusterAssment[cluster_index,deviation],in which deviation represents the dist
 	# from current point to centroids. 
+	# 使用Bisceting Kmeans算法对游客进行聚类，预期聚类簇数目为4
 	centroids, clusterAssment = kMeans.biKmeans(norMat,4)
 	cluster_label = clusterAssment[:,0]
 	clusters = [[],[],[],[]]
@@ -72,6 +74,7 @@ def main():
 		clusters[i] = np.asarray(clusters[i])
 	clusters = np.asarray(clusters)
 
+	#找出含有元素最多的簇，以及最少的簇
 	minCount = 10000
 	maxCount = 0
 	max_cluster = 0
@@ -90,7 +93,10 @@ def main():
 		print centroids[i]
 	number_weight = float(len(clusters[max_cluster]))/(len(clusters[min_cluster]))
 	print centroids[max_cluster]
+
+	# 计算Dunn指标
 	di = base.dunn(clusters)
+	# 计算N-Dunn指标
 	NDunnIndex = di*(maxCount/minCount)
 	print di
 	print NDunnIndex
@@ -98,61 +104,7 @@ def main():
 	print "original dunn is %f" % di
 	print "weighted dunn is %f" % (number_weight*di)
 
-def plot2Cluster():
-	dataSetShangHai = kMeans.loadfromcsv('./data/cluster/8.csv')
-	dataSetXiAn = kMeans.loadfromcsv('./data/cluster/51.csv')
-
-	dataMatXiAn = np.mat(dataSetXiAn)
-	dataMatShangHai = np.mat(dataSetShangHai)
-
-	norMatXiAn = kMeans.normalize(dataMatXiAn)
-	norMatShangHai = kMeans.normalize(dataMatShangHai)
-
-# shanghai
-	plt.subplot(121)
-	
-	pointClusNumShangHai = clusterAssmentShangHai[:,0].A.T
-	n = np.shape(pointClusNumShangHai)[1]
-	plt.title(u'上海')
-	for i in range(n):
-		if 0.0 == pointClusNumShangHai.item(i):
-			plt.plot(norMatShangHai[i,0],norMatShangHai[i,1],'g^')
-		elif 1.0 == pointClusNumShangHai.item(i):
-			plt.plot(norMatShangHai[i,0],norMatShangHai[i,1],'b*')
-		elif 2.0 == pointClusNumShangHai.item(i):
-			plt.plot(norMatShangHai[i,0],norMatShangHai[i,1],'k<')
-		elif 3.0 == pointClusNumShangHai.item(i):
-			plt.plot(norMatShangHai[i,0],norMatShangHai[i,1],'ms')
-
-	plt.plot(centroidsShangHai[:,0],centroidsShangHai[:,1],'ro')
-	plt.axis([0,4.0,0,12])
-	plt.xticks([0,1,2,3])
-	# plt.xlabel(u'Distance Index')
-	# plt.ylabel(u'Activity Degree Index')
-
-
-	# XiAn
-	plt.subplot(122)
-	pointClusNumXiAn = clusterAssmentXiAn[:,0].A.T
-	n = np.shape(pointClusNumXiAn)[1]
-	plt.title(u'西安')
-	for i in range(n):
-		if 0.0 == pointClusNumXiAn.item(i):
-			plt.plot(norMatXiAn[i,0],norMatXiAn[i,1],'g^')
-		elif 1.0 == pointClusNumXiAn.item(i):
-			plt.plot(norMatXiAn[i,0],norMatXiAn[i,1],'b*')
-		elif 2.0 == pointClusNumXiAn.item(i):
-			plt.plot(norMatXiAn[i,0],norMatXiAn[i,1],'k<')
-		elif 3.0 == pointClusNumXiAn.item(i):
-			plt.plot(norMatXiAn[i,0],norMatXiAn[i,1],'ms')
-
-	plt.plot(centroidsXiAn[:,0],centroidsXiAn[:,1],'ro')
-	plt.axis([0,4.0,0,12])
-	plt.xticks([0,1,2,3])
-	# plt.xlabel(u'Distance Index')
-	# plt.ylabel(u'Activity Degree Index')
-	plt.show()
-
+# 计算N-Dunn指标，并使用matplotlib库可视化聚类结果
 def plotCluster():
 	dataSetShangHai = kMeans.loadfromcsv('./data/8.csv')
 	dataSetXiAn = kMeans.loadfromcsv('./data/10195.csv')

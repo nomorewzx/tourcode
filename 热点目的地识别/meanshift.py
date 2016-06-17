@@ -10,9 +10,10 @@ import operator
 from collections import defaultdict
 from sklearn.neighbors import NearestNeighbors
 
+SOURCE_FILE = "./data/notegeodata.csv"
 
 def genMatrix():
-	a = np.genfromtxt("notegeodata.csv",delimiter=',')
+	a = np.genfromtxt(SOURCE_FILE,delimiter=',')
 	m = np.matrix(a[:,-2:])
 	return a[:,-2:]
 
@@ -105,56 +106,14 @@ def meanshift(X,bandwidth):
 		if minDist<=bandwidth:
 			labels[i] = cluster_label
 
+	# cluster_centers为各簇中心，labels存格式为 [1,34,53,25,....]分别表示index表征的点所属的簇标号。例如，0属于簇1，2属于簇34，3属于簇53.....
 	return cluster_centers,labels
 
-def defineClusterName(classifications):
-    reader = csv.reader(open("./data/notegeodata.csv"))
-    dictCount = {}
-    i = 0
-    for item in reader:
-        label = classifications[i]
-        # check if label or city in dictCount.
-        #if label in dictCount, but city not in dictCount[label],then add city.
-        if label  not in dictCount:
-            dictCount[label]={item[5]:1}
-        elif item[5] not in dictCount[label]:
-            dictCount[label][item[5]]=1
-        else:
-            dictCount[label][item[5]]+=1
-        i+=1
-    print "has %d labels in" % i
-    print 'has %d points has been assigned' % len(dictCount)
-    classificationsName = classifications
-    dictCount_new ={}
-    for key,value in dictCount.iteritems():
-       sorted_city = sorted(value.items(), key = operator.itemgetter(1),reverse=True)
-       dictCount_new[key]=sorted_city[0][0]
-    for i in range(0,len(classifications)):
-        label = classifications[i]
-        classificationsName[i] = dictCount_new[label]
-    fopen = open('./data/clusterName-meanshift.txt','w')
-    for k,v in dictCount_new.iteritems():
-        fopen.write(str(k)+','+str(v)+'\n')
-    fopen.close()
-    # return  dictCount_new, classificationsName
-
-def runWithParam(n):
-	m = genMatrix()
-	cluster_centers,labels = meanshift(m,n)
-	name = 'meanshift-%d.txt' % n
-	f = open(name,'w')
-	label_list = []
-	for i in range(0,len(labels)):
-		label_list.append(labels[i])
-	for label in label_list:
-		f.write(str(label))
-		f.write('\n')
-	f.close()
-
 def clusterName(bandwidth,labels):
+	# 根据labels定义
 	cluster_number = len(list(set(labels)))
 	file_name = "./data/%d-number-%d-name.txt" % (bandwidth,cluster_number)
-	reader = csv.reader(open('./data/notegeodata.csv'))
+	reader = csv.reader(open(SOURCE_FILE))
 	dictCount = {}
 	i = 0
 	for item in reader:
@@ -172,32 +131,18 @@ def clusterName(bandwidth,labels):
 	for key,value in dictCount.iteritems():
 		sorted_city = sorted(value.items(), key = operator.itemgetter(1),reverse=True)
 		dictCount_new[key]=sorted_city[0][0]
-	print 'has %d cluster has defined names' % len(dictCount_new)
+	print ' %d cluster has defined names' % len(dictCount_new)
 
 	f = open(file_name,'w')
 	for k,v in dictCount_new.iteritems():
 		f.write(str(k)+','+v+'\n')
 	f.close()
 
-def genLabelsFromtxt(file_name,bandwidth):
-	f = open(file_name,'r')
-	lines = f.readlines()
-	labels = []
-	for line in lines:
-		labels.append(int(line))
-	clusterName(bandwidth,labels)
-
-
-def runMulti():
-	runWithParam(150)
-	runWithParam(50)
-
 # 比较DBSCAN聚类结果中与MeanShift聚类结果中有多少是相同的个数
 # 注意MeanShift文件需要在代码中更改
-def compareTwo(bandwidth,cluster_number):
-	mean_shift_path = "./dat/%d-number-%d-name.txt" % (bandwidth,cluster_number)
-	f_dbscan = open('./data/clusterName-dbscan.txt','r')
-	f_meanshift = open(mean_shift_path,'r')
+def compareTwo(meanshift_file, dbscan_file):
+	f_dbscan = open(dbscan_file,'r')
+	f_meanshift = open(meanshift_file,'r')
 	db_names = genClusterName(f_dbscan)
 	mf_names = genClusterName(f_meanshift)
 	same_names = []
@@ -206,7 +151,7 @@ def compareTwo(bandwidth,cluster_number):
 			same_names.append(name)
 
 	print 'DBSCAN and meanshift with %d bandwidth has %d same names' % (bandwidth,len(same_names))
-	f = open('./data/same_names-150.txt','w')
+	f = open('./data/same_names.txt','w')
 	for name in same_names:
 		f.write(name+'\n')
 	f.close()
@@ -219,16 +164,17 @@ def genClusterName(file1):
 		cluster_names.append(name)
 	return cluster_names
 if __name__ == '__main__':
+	bandwidth = 150
+	# 从notegeodata.csv文件中生成用于聚类的矩阵m
 	m = genMatrix()
 	print 'runing...'
-	cluster_centers,labels = meanshift(m,150)
+
+	# 运行meanshift，参数为(带聚类矩阵，带宽(bandwith))
+	cluster_centers,labels = meanshift(m,bandwidth)
 	print "共有簇数目为：%d" % len(cluster_centers)
 
+	# 定义簇名称,存储于./data/bandwidth-number-clusternumber-name.txt
+	clusterName(bandwidth,labels)
 
-	f = open('./data/labels.txt','a')
-	for label in labels:
-		f.writeln(label)
-	f.close()
-
-	print "共有噪音点数目为: %d" % (len(labels)-count)
-	print "所有簇中包含点数目为: %d" % count
+	# 比较meanshift与dbscan相同簇的个数， 参数为两个聚类结果的簇名称文件。
+	# compareTwo(meanshift_name_file,dbscan_name_file)

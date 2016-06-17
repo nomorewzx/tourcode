@@ -9,6 +9,7 @@ import operator
 
 UNCLASSIFIED = False
 NOISE = None
+SOURCE_FILE = './data/notegeodata.csv'
 
 def _dist(p,q):
     assert type(p) is np.matrix, 'p is not matrix!'
@@ -67,15 +68,11 @@ def dbscan(m, min_points, eps):
 def _runDbscan(m,eps,min_points):
     #assert dbscan(m, eps, min_points) == [1, 1, 1, 2, 2, 2, None]
     classifications = dbscan(m, min_points, eps)
-    fopen = open("./data/result.txt",'w')
-    for i in classifications:
-        fopen.write(str(i))
-        fopen.write('\n')
-    fopen.close()
     return classifications
 
 def _genMatrixFromtxt():
-    a = np.genfromtxt('./data/notegeodata.csv',delimiter=',')
+    # 读取notegeodata.csv文件，获取倒数第二列与倒数第一列的数据，分别为经度和纬度
+    a = np.genfromtxt(SOURCE_FILE,delimiter=',')
     m = np.matrix(a[:,-2:])
     return m
 
@@ -88,8 +85,16 @@ def _dumpToJson(matrix, classifications):
     fopen = open('./data/jsonResult.json','w')
     json.dump(jsonList,fopen)
     fopen.close()
-def _defineClusterName(classifications, csvFile):
-    reader = csv.reader(open("./data/notegeodata.csv"))
+
+# 定义每个簇的名称
+def _defineClusterName(classifications):
+    # dictCount字典的结构为{簇编号:
+    #                               {目的地名称:目的地出现次数,
+    #                                目的地名称:目的地出现次数,...}
+    #                       ,
+    #                       簇编号:....}
+    # 每个簇编号的命名规则为，其名称为其中出现次数最多的目的地名称。
+    reader = csv.reader(open(SOURCE_FILE))
     dictCount = {}
     i = 0
     for item in reader:
@@ -117,3 +122,24 @@ def _defineClusterName(classifications, csvFile):
         fopen.write(str(k)+','+v+'\n')
     fopen.close()
     return  dictCount_new, classificationsName
+
+def main():
+
+    # 读取./data/notegeodata.csv文件中的数据，生成矩阵m，用于dbscan聚类
+    m = _genMatrixFromtxt()
+
+    # 运行dbscan算法，输入为矩阵m，eps设置为50K，mminiPts参数设置为15
+    # classification 的格式为 [1,34,53,25,....]分别表示index表征的点所属的簇标号。例如，0属于簇1，2属于簇34，3属于簇53.....
+    print "runing dbscan.........."
+    classification = _runDbscan(m,50,15)
+
+    # 根据notegeodata.csv文件中的数据，结合classification存储的聚类结果，使用_defineClusterName()函数确定每个簇的名称
+    # 并将名称结果存储于./data/clusterName.txt文件中
+    _defineClusterName(classification)
+    print "completing defining cluster names......"
+
+    # 生成./data/jsonResult.json文件，json文件格式为[{label:23,lat:34.567,lon:108.9392},....]，即每个点的簇编号，经纬度信息。
+    # 之后可使用Baidu Map API将热点目的地标注在地图上，进行可视化。
+    _dumpToJson(m, classification)
+    print "completing dumping json file..........."
+
